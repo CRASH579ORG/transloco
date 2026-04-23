@@ -38,52 +38,11 @@ export class DefaultTranspiler implements TranslocoTranspiler {
     inject(TRANSLOCO_CONFIG, { optional: true }) ?? defaultConfig;
 
   protected get interpolationMatcher() {
-    return resolveMatcher(this.config);
+      throw new Error("STUB");
   }
 
   transpile({ value, params = {}, translation, key }: TranspileParams): any {
-    if (isString(value)) {
-      let paramMatch: RegExpExecArray | null;
-      let parsedValue = value;
-
-      while (
-        (paramMatch = this.interpolationMatcher.exec(parsedValue)) !== null
-      ) {
-        const [match, paramValue] = paramMatch;
-        parsedValue = parsedValue.replace(match, () => {
-          const match = paramValue.trim();
-
-          const param = getValue(params, match);
-          if (isDefined(param)) {
-            return param;
-          }
-
-          return isDefined(translation[match])
-            ? this.transpile({
-                params,
-                translation,
-                key,
-                value: translation[match],
-              })
-            : '';
-        });
-      }
-
-      return parsedValue;
-    } else if (params) {
-      if (isObject(value)) {
-        value = this.handleObject({
-          value,
-          params,
-          translation,
-          key,
-        });
-      } else if (Array.isArray(value)) {
-        value = this.handleArray({ value, params, translation, key });
-      }
-    }
-
-    return value;
+      return {} as any;
   }
 
   /**
@@ -116,40 +75,16 @@ export class DefaultTranspiler implements TranslocoTranspiler {
     translation,
     key,
   }: TranspileParams<Record<any, any>>) {
-    let result = value;
-
-    Object.keys(params).forEach((p) => {
-      // transpile the value => "Hello Transloco"
-      const transpiled = this.transpile({
-        // get the value of "b.c" inside "a" => "Hello {{ value }}"
-        value: getValue(result, p),
-        // get the params of "b.c" => { value: "Transloco" }
-        params: getValue(params, p),
-        translation,
-        key,
-      });
-
-      // set "b.c" to `transpiled`
-      result = setValue(result, p, transpiled);
-    });
-
-    return result;
+      return {} as Record<any, any>;
   }
 
   protected handleArray({ value, ...rest }: TranspileParams<unknown[]>) {
-    return value.map((v) =>
-      this.transpile({
-        value: v,
-        ...rest,
-      }),
-    );
+      return [];
   }
 }
 
 function resolveMatcher(config: TranslocoConfig): RegExp {
-  const [start, end] = config.interpolation;
-
-  return new RegExp(`${start}([^${start}${end}]*?)${end}`, 'g');
+    throw new Error("STUB");
 }
 
 export interface TranslocoTranspilerFunction {
@@ -157,18 +92,7 @@ export interface TranslocoTranspilerFunction {
 }
 
 export function getFunctionArgs(argsString: string): string[] {
-  const splitted = argsString ? argsString.split(',') : [];
-  const args = [];
-  for (let i = 0; i < splitted.length; i++) {
-    let value = splitted[i].trim();
-    while (value[value.length - 1] === '\\') {
-      i++;
-      value = value.replace('\\', ',') + splitted[i];
-    }
-    args.push(value);
-  }
-
-  return args;
+    return [];
 }
 
 const functionalCallRegExp = /\[\[\s*(\w+)\((.*?)\)\s*]]/g;
@@ -181,40 +105,6 @@ export class FunctionalTranspiler
   protected injector = inject(Injector);
 
   transpile({ value, ...rest }: TranspileParams) {
-    let transpiled = value;
-    if (isString(value)) {
-      transpiled = value.replace(
-        functionalCallRegExp,
-        (match: string, functionName: string, args: string) => {
-          try {
-            const func: TranslocoTranspilerFunction =
-              this.injector.get(functionName);
-
-            const transpiledArgs = this.transpile({
-              value: getFunctionArgs(args),
-              ...rest,
-            });
-            return func.transpile(...transpiledArgs);
-          } catch (e: unknown) {
-            let message: string;
-            if (typeof ngDevMode !== 'undefined' && ngDevMode) {
-              message = `There is an error in: '${value}'. 
-                          Check that the you used the right syntax in your translation and that the implementation of ${functionName} is correct.`;
-              if ((e as Error).message.includes('NullInjectorError')) {
-                message = `You are using the '${functionName}' function in your translation but no provider was found!`;
-              }
-            } else {
-              message = formatTranslocoError(
-                TranslocoErrorCode.FunctionalTranspilerInvalidSyntax,
-              );
-            }
-
-            throw new Error(message);
-          }
-        },
-      );
-    }
-
-    return super.transpile({ value: transpiled, ...rest });
+      return {} as any;
   }
 }

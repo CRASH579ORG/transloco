@@ -88,137 +88,48 @@ export class TranslocoDirective implements OnInit, OnDestroy, OnChanges {
     dir: TranslocoDirective,
     ctx: unknown,
   ): ctx is ViewContext {
-    return true;
+      throw new Error("STUB");
   }
 
   ngOnInit() {
-    const listenToLangChange = shouldListenToLangChanges(
-      this.service,
-      this.providerLang || this.inlineLang,
-    );
-
-    this.service.langChanges$
-      .pipe(
-        switchMap((activeLang) => {
-          const lang = this.langResolver.resolve({
-            inline: this.inlineLang,
-            provider: this.providerLang,
-            active: activeLang,
-          });
-
-          return Array.isArray(this.providerScope)
-            ? forkJoin(
-                this.providerScope.map((providerScope) =>
-                  this.resolveScope(lang, providerScope),
-                ),
-              )
-            : this.resolveScope(lang, this.providerScope);
-        }),
-        listenOrNotOperator(listenToLangChange),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.currentLang = this.langResolver.resolveLangBasedOnScope(
-          this.path!,
-        );
-        this.strategy === 'attribute'
-          ? this.attributeStrategy()
-          : this.structuralStrategy(
-              this.currentLang,
-              this.prefix || this.inlineRead,
-            );
-        this.cdr.markForCheck();
-        this.initialized = true;
-      });
-
-    if (!this.initialized) {
-      const loadingContent = this.resolveLoadingContent();
-      if (loadingContent) {
-        this.loaderTplHandler = new TemplateHandler(loadingContent, this.vcr);
-        this.loaderTplHandler.attachView();
-      }
-    }
+      throw new Error("STUB");
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // We need to support dynamic keys/params, so if this is not the first change CD cycle
-    // we need to run the function again in order to update the value
-    if (this.strategy === 'attribute') {
-      const notInit = Object.keys(changes).some((v) => !changes[v].firstChange);
-      notInit && this.attributeStrategy();
-    }
+      throw new Error("STUB");
   }
 
   private attributeStrategy() {
-    this.detachLoader();
-    this.renderer.setProperty(
-      this.host.nativeElement,
-      'innerText',
-      this.service.translate(this.key!, this.params, this.currentLang),
-    );
+      throw new Error("STUB");
   }
 
   private structuralStrategy(lang: string, prefix?: string) {
-    this.memo.clear();
-    const translateFn = this.getTranslateFn(lang, prefix);
-
-    if (this.view) {
-      // when the lang changes we need to change the reference so Angular will update the view
-      this.view.context['$implicit'] = translateFn;
-      this.view.context['currentLang'] = this.currentLang!;
-    } else {
-      this.detachLoader();
-      this.view = this.vcr.createEmbeddedView(this.tpl!, {
-        $implicit: translateFn,
-        currentLang: this.currentLang!,
-      });
-    }
+      throw new Error("STUB");
   }
 
   protected getTranslateFn(
     lang: string,
     prefix: string | undefined,
   ): TranslateFn {
-    return (key: string, params?: HashMap) => {
-      const withPrefix = prefix ? `${prefix}.${key}` : key;
-      const memoKey = params
-        ? `${withPrefix}${JSON.stringify(params)}`
-        : withPrefix;
-
-      if (!this.memo.has(memoKey)) {
-        this.memo.set(
-          memoKey,
-          this.service.translate(withPrefix, params, lang),
-        );
-      }
-
-      return this.memo.get(memoKey);
-    };
+      throw new Error("STUB");
   }
 
   private resolveLoadingContent() {
-    return this.inlineTpl || this.providedLoadingTpl;
+      throw new Error("STUB");
   }
 
   ngOnDestroy() {
-    this.memo.clear();
+      throw new Error("STUB");
   }
 
   private detachLoader() {
-    this.loaderTplHandler?.detachView();
+      throw new Error("STUB");
   }
 
   private resolveScope(
     lang: string,
     providerScope: TranslocoScope | null,
   ): Observable<Translation | Translation[]> {
-    const resolvedScope = this.scopeResolver.resolve({
-      inline: this.inlineScope,
-      provider: providerScope,
-    });
-    this.path = this.langResolver.resolveLangPath(lang, resolvedScope);
-    const inlineLoader = resolveInlineLoader(providerScope, resolvedScope);
-
-    return this.service._loadDependencies(this.path, inlineLoader);
+      return {} as Observable<Translation | Translation[]>;
   }
 }

@@ -51,20 +51,7 @@ export function translateSignal<T extends TranslateSignalKey>(
   lang?: ScopeType,
   injector?: Injector,
 ): TranslateSignalRef<T> {
-  if (!injector) {
-    assertInInjectionContext(translateSignal);
-  }
-  injector ??= inject(Injector);
-  const result = runInInjectionContext(injector, () => {
-    const service = inject(TranslocoService);
-    const scope = resolveScope(lang);
-    return computerKeysAndParams(key, params).pipe(
-      switchMap((dynamic) =>
-        service.selectTranslate(dynamic.key, dynamic.params, scope),
-      ),
-    );
-  });
-  return toSignal(result, { initialValue: Array.isArray(key) ? [''] : '' });
+    return {} as any;
 }
 
 /**
@@ -85,57 +72,27 @@ export function translateObjectSignal<T extends TranslateSignalKey>(
   lang?: ScopeType,
   injector?: Injector,
 ): TranslateObjectSignalRef<T> {
-  if (!injector) {
-    assertInInjectionContext(translateObjectSignal);
-  }
-  injector ??= inject(Injector);
-  const result = runInInjectionContext(injector, () => {
-    const service = inject(TranslocoService);
-    const scope = resolveScope(lang);
-    return computerKeysAndParams(key, params).pipe(
-      switchMap((dynamic) =>
-        service.selectTranslateObject(
-          dynamic.key,
-          dynamic.params,
-          scope as string,
-        ),
-      ),
-    );
-  });
-  return toSignal(result, { initialValue: Array.isArray(key) ? [] : {} });
+    return {} as any;
 }
 
 function computerParams(params: HashMap<Signal<string>> | Signal<HashMap>) {
-  if (isSignal(params)) {
-    return computed(() => params());
-  }
-  return computed(() => {
-    return Object.entries(params).reduce((acc, [key, value]) => {
-      acc[key] = isSignal(value) ? value() : value;
-      return acc;
-    }, {} as HashMap);
-  });
+    return {} as any;
 }
 
 function computerKeys(
   keys: Signal<string> | Signal<string[]> | Signal<string>[],
 ) {
-  if (Array.isArray(keys)) {
-    return computed(() => keys.map((key) => (isSignal(key) ? key() : key)));
-  }
-  return computed(() => keys());
+    return {} as any;
 }
 
 function isSignalKey(key: TranslateSignalKey): key is SignalKey {
-  return Array.isArray(key) ? key.some(isSignal) : isSignal(key);
+    return false;
 }
 
 function isSignalParams(
   params?: HashMap,
 ): params is HashMap<Signal<string>> | Signal<HashMap> {
-  return params
-    ? isSignal(params) || Object.values(params).some(isSignal)
-    : false;
+    return false;
 }
 
 function computerKeysAndParams(
@@ -145,28 +102,9 @@ function computerKeysAndParams(
   key: string | string[];
   params: HashMap | undefined;
 }> {
-  // Avoid async effect from toObservable for those that do not need it
-  if (!isSignalKey(key) && !isSignalParams(params)) {
-    return of({
-      key,
-      params,
-    });
-  }
-  const computedKeys = isSignalKey(key)
-    ? computerKeys(key)
-    : computed(() => key);
-  const computedParams = isSignalParams(params)
-    ? computerParams(params)
-    : computed(() => params);
-  return toObservable(
-    computed(() => ({ key: computedKeys(), params: computedParams() })),
-  );
+    return {} as Observable<{ key: string | string[]; params: HashMap | undefined; }>;
 }
 
 function resolveScope(scope?: ScopeType) {
-  if (typeof scope === 'undefined' || scope === '') {
-    const translocoScope = inject(TRANSLOCO_SCOPE, { optional: true });
-    return translocoScope ?? undefined;
-  }
-  return scope;
+    return {} as any;
 }

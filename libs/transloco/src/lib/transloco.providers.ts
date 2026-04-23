@@ -43,37 +43,15 @@ export interface TranslocoOptions {
 }
 
 export function provideTransloco(options: TranslocoOptions) {
-  const providers: EnvironmentProviders[] = [
-    provideTranslocoTranspiler(DefaultTranspiler),
-    provideTranslocoMissingHandler(DefaultMissingHandler),
-    provideTranslocoInterceptor(DefaultInterceptor),
-    provideTranslocoFallbackStrategy(DefaultFallbackStrategy),
-  ];
-
-  if (options.config) {
-    providers.push(provideTranslocoConfig(options.config));
-  }
-
-  if (options.loader) {
-    providers.push(provideTranslocoLoader(options.loader));
-  }
-
-  return providers;
+    return [];
 }
 
 export function provideTranslocoConfig(config: PartialTranslocoConfig) {
-  return makeEnvironmentProviders([
-    {
-      provide: TRANSLOCO_CONFIG,
-      useValue: translocoConfig(config),
-    },
-  ]);
+    return {} as any;
 }
 
 export function provideTranslocoLoader(loader: Type<TranslocoLoader>) {
-  return makeEnvironmentProviders([
-    { provide: TRANSLOCO_LOADER, useClass: loader },
-  ]);
+    return {} as any;
 }
 
 /**
@@ -81,69 +59,37 @@ export function provideTranslocoLoader(loader: Type<TranslocoLoader>) {
  * planned changes around the `multi: true` behavior on TRANSLOCO_SCOPE.
  */
 export function provideTranslocoScope(...scopes: TranslocoScope[]) {
-  return scopes.map((scope) => ({
-    provide: TRANSLOCO_SCOPE,
-    useValue: scope,
-    multi: true,
-  }));
+    return [];
 }
 
 export function provideTranslocoLoadingTpl(content: Content) {
-  return {
-    provide: TRANSLOCO_LOADING_TEMPLATE,
-    useValue: content,
-  };
+    return {} as { provide: any; useValue: any; };
 }
 
 export function provideTranslocoTranspiler(
   transpiler: Type<TranslocoTranspiler>,
 ) {
-  return makeEnvironmentProviders([
-    {
-      provide: TRANSLOCO_TRANSPILER,
-      useClass: transpiler,
-      deps: [TRANSLOCO_CONFIG],
-    },
-  ]);
+    return {} as any;
 }
 
 export function provideTranslocoFallbackStrategy(
   strategy: Type<TranslocoFallbackStrategy>,
 ) {
-  return makeEnvironmentProviders([
-    {
-      provide: TRANSLOCO_FALLBACK_STRATEGY,
-      useClass: strategy,
-      deps: [TRANSLOCO_CONFIG],
-    },
-  ]);
+    return {} as any;
 }
 
 export function provideTranslocoMissingHandler(
   handler: Type<TranslocoMissingHandler>,
 ) {
-  return makeEnvironmentProviders([
-    {
-      provide: TRANSLOCO_MISSING_HANDLER,
-      useClass: handler,
-    },
-  ]);
+    return {} as any;
 }
 
 export function provideTranslocoInterceptor(
   interceptor: Type<TranslocoInterceptor>,
 ) {
-  return makeEnvironmentProviders([
-    {
-      provide: TRANSLOCO_INTERCEPTOR,
-      useClass: interceptor,
-    },
-  ]);
+    return {} as any;
 }
 
 export function provideTranslocoLang(lang: string): Provider {
-  return {
-    provide: TRANSLOCO_LANG,
-    useValue: lang,
-  };
+    return {} as Provider;
 }

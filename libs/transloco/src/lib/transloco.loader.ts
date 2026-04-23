@@ -18,7 +18,7 @@ export class DefaultLoader implements TranslocoLoader {
   constructor(private translations: Map<string, Translation>) {}
 
   getTranslation(lang: string): Observable<Translation> {
-    return of(this.translations.get(lang) || {});
+      return {} as Observable<Translation>;
   }
 }
 

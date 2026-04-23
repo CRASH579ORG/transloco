@@ -21,13 +21,6 @@ export interface TranslocoMissingHandler {
 @Injectable()
 export class DefaultMissingHandler implements TranslocoMissingHandler {
   handle(key: string, config: TranslocoConfig) {
-    if (typeof ngDevMode !== 'undefined' && ngDevMode) {
-      if (config.missingHandler.logMissingKey) {
-        const msg = `Missing translation for '${key}'`;
-        console.warn(`%c ${msg}`, 'font-size: 12px; color: red');
-      }
-    }
-
-    return key;
+      return "";
   }
 }

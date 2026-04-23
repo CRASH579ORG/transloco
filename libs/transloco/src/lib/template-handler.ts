@@ -12,18 +12,10 @@ export class TemplateHandler {
   ) {}
 
   attachView() {
-    if (this.view instanceof TemplateRef) {
-      this.vcr.createEmbeddedView(this.view);
-    } else if (isString(this.view)) {
-      const componentRef = this.vcr.createComponent(TranslocoLoaderComponent);
-      componentRef.instance.html = this.view;
-      componentRef.hostView.detectChanges();
-    } else {
-      this.vcr.createComponent(this.view);
-    }
+      throw new Error("STUB");
   }
 
   detachView() {
-    this.vcr.clear();
+      throw new Error("STUB");
   }
 }

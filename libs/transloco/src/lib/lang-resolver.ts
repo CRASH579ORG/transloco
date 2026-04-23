@@ -12,30 +12,7 @@ export class LangResolver {
 
   // inline => provider => active
   resolve({ inline, provider, active }: LangResolverParams): string {
-    let lang = active;
-    /**
-     * When the user changes the lang we need to update
-     * the view. Otherwise, the lang will remain the inline/provided lang
-     */
-    if (this.initialized) {
-      lang = active;
-
-      return lang;
-    }
-
-    if (provider) {
-      const [, extracted] = getPipeValue(provider, 'static');
-      lang = extracted;
-    }
-
-    if (inline) {
-      const [, extracted] = getPipeValue(inline, 'static');
-      lang = extracted;
-    }
-
-    this.initialized = true;
-
-    return lang;
+      return "";
   }
 
   /**
@@ -49,9 +26,7 @@ export class LangResolver {
    *
    */
   resolveLangBasedOnScope(lang: string) {
-    const scope = getScopeFromLang(lang);
-
-    return scope ? getLangFromScope(lang) : lang;
+      throw new Error("STUB");
   }
 
   /**
@@ -65,6 +40,6 @@ export class LangResolver {
    *
    */
   resolveLangPath(lang: string, scope?: string) {
-    return scope ? `${scope}/${lang}` : lang;
+      return "";
   }
 }

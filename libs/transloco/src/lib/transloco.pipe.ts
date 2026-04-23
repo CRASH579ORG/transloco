@@ -55,72 +55,21 @@ export class TranslocoPipe implements PipeTransform, OnDestroy {
     params?: HashMap,
     inlineLang?: string,
   ): string {
-    if (!key) {
-      return key as any;
-    }
-
-    const keyName = params ? `${key}${JSON.stringify(params)}` : key;
-
-    if (keyName === this.lastKey) {
-      return this.lastValue;
-    }
-
-    this.lastKey = keyName;
-    this.subscription?.unsubscribe();
-
-    const listenToLangChange = shouldListenToLangChanges(
-      this.service,
-      this.providerLang || inlineLang,
-    );
-
-    this.subscription = this.service.langChanges$
-      .pipe(
-        switchMap((activeLang) => {
-          const lang = this.langResolver.resolve({
-            inline: inlineLang,
-            provider: this.providerLang,
-            active: activeLang,
-          });
-
-          return Array.isArray(this.providerScope)
-            ? forkJoin(
-                this.providerScope.map((providerScope) =>
-                  this.resolveScope(lang, providerScope),
-                ),
-              )
-            : this.resolveScope(lang, this.providerScope);
-        }),
-        listenOrNotOperator(listenToLangChange),
-      )
-      .subscribe(() => this.updateValue(key, params));
-
-    return this.lastValue;
+      throw new Error("STUB");
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
-    // Caretaker note: it's important to clean up references to subscriptions since they save the `next`
-    // callback within its `destination` property, preventing classes from being GC'd.
-    this.subscription = null;
+      throw new Error("STUB");
   }
 
   private updateValue(key: string, params?: HashMap | undefined) {
-    const lang = this.langResolver.resolveLangBasedOnScope(this.path!);
-    this.lastValue = this.service.translate(key, params, lang);
-    this.cdr.markForCheck();
+      throw new Error("STUB");
   }
 
   private resolveScope(
     lang: string,
     providerScope: TranslocoScope | null,
   ): Observable<Translation | Translation[]> {
-    const resolvedScope = this.scopeResolver.resolve({
-      inline: undefined,
-      provider: providerScope,
-    });
-    this.path = this.langResolver.resolveLangPath(lang, resolvedScope);
-    const inlineLoader = resolveInlineLoader(providerScope, resolvedScope);
-
-    return this.service._loadDependencies(this.path, inlineLoader);
+      return {} as Observable<Translation | Translation[]>;
   }
 }

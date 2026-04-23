@@ -44,7 +44,7 @@ export class TestingLoader implements TranslocoLoader {
   ) {}
 
   getTranslation(lang: string): Observable<Translation> | Promise<Translation> {
-    return of(this.langs[lang]);
+      return {} as any;
   }
 }
 
@@ -53,14 +53,7 @@ export function initTranslocoService(
   langs: HashMap<Translation> = {},
   options: TranslocoTestingOptions,
 ) {
-  const preloadAllLangs = () =>
-    options.preloadLangs
-      ? Promise.all(
-          Object.keys(langs).map((lang) => service.load(lang).toPromise()),
-        )
-      : Promise.resolve();
-
-  return preloadAllLangs;
+    throw new Error("STUB");
 }
 
 @NgModule({
@@ -70,39 +63,6 @@ export class TranslocoTestingModule {
   static forRoot(
     options: TranslocoTestingOptions,
   ): ModuleWithProviders<TranslocoTestingModule> {
-    return {
-      ngModule: TranslocoTestingModule,
-      providers: [
-        provideTransloco({
-          loader: TestingLoader,
-          config: {
-            prodMode: true,
-            ...options.translocoConfig,
-            missingHandler: {
-              logMissingKey: false,
-              ...options.translocoConfig?.missingHandler,
-            },
-          },
-        }),
-        {
-          provide: TRANSLOCO_TEST_LANGS,
-          useValue: options.langs,
-        },
-        {
-          provide: TRANSLOCO_TEST_OPTIONS,
-          useValue: options,
-        },
-        {
-          provide: APP_INITIALIZER,
-          useFactory: initTranslocoService,
-          deps: [
-            TranslocoService,
-            TRANSLOCO_TEST_LANGS,
-            TRANSLOCO_TEST_OPTIONS,
-          ],
-          multi: true,
-        },
-      ],
-    };
+      throw new Error("STUB");
   }
 }

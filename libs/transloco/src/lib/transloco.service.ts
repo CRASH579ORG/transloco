@@ -79,7 +79,7 @@ export function translate<T = string>(
   params: HashMap = {},
   lang?: string,
 ): T {
-  return service.translate<T>(key, params, lang);
+    return {} as T;
 }
 
 export function translateObject<T>(
@@ -87,7 +87,7 @@ export function translateObject<T>(
   params: HashMap = {},
   lang?: string,
 ): T | T[] {
-  return service.translateObject<T>(key, params, lang);
+    return [];
 }
 
 export class TranslationLoadError extends Error {
@@ -98,17 +98,7 @@ export class TranslationLoadError extends Error {
     readonly fallbackLangs: string[],
     readonly isScope: boolean,
   ) {
-    let message = '';
-    if (typeof ngDevMode !== 'undefined' && ngDevMode) {
-      message = `Unable to load translation and all the fallback languages`;
-      if (isScope) {
-        message += `, did you misspell the scope name?`;
-      }
-    }
-
-    super(message);
-
-    Object.setPrototypeOf(this, TranslationLoadError.prototype);
+      throw new Error("STUB");
   }
 }
 
@@ -155,68 +145,27 @@ export class TranslocoService {
     @Inject(TRANSLOCO_FALLBACK_STRATEGY)
     private fallbackStrategy: TranslocoFallbackStrategy,
   ) {
-    if (!this.loader) {
-      this.loader = new DefaultLoader(this.translations);
-    }
-    service = this;
-    this.config = JSON.parse(JSON.stringify(userConfig));
-
-    this.setAvailableLangs(this.config.availableLangs || []);
-    this.setFallbackLangForMissingTranslation(this.config);
-    this.setDefaultLang(this.config.defaultLang);
-    this.lang = new BehaviorSubject<string>(this.getDefaultLang());
-    // Don't use distinctUntilChanged as we need the ability to update
-    // the value when using setTranslation or setTranslationKeys
-    this.langChanges$ = this.lang.asObservable();
-
-    this.activeLang = toSignal(this.lang, { requireSync: true });
-
-    /**
-     * When we have a failure, we want to define the next language that succeeded as the active
-     */
-    this.events$.subscribe((e) => {
-      if (e.type === 'translationLoadSuccess' && e.wasFailure) {
-        this.setActiveLang(e.payload.langName);
-      }
-    });
-
-    this.destroyRef.onDestroy(() => {
-      this.destroyed = true;
-      // Complete subjects to release observers if users forget to unsubscribe manually.
-      // This is important in server-side rendering.
-      this.lang.complete();
-      this.events.complete();
-      // As a root provider, this service is destroyed with when the application is destroyed.
-      // Cached values retain `this`, causing circular references that block garbage collection,
-      // leading to memory leaks during server-side rendering.
-      this.cache.clear();
-    });
+      throw new Error("STUB");
   }
 
   getDefaultLang() {
-    return this.defaultLang;
+      throw new Error("STUB");
   }
 
   setDefaultLang(lang: string) {
-    this.defaultLang = lang;
+      throw new Error("STUB");
   }
 
   getActiveLang() {
-    return this.lang.getValue();
+      return {} as any;
   }
 
   setActiveLang(lang: string) {
-    this.parser.onLangChanged?.(lang);
-    this.lang.next(lang);
-    this.events.next({
-      type: 'langChanged',
-      payload: getEventPayload(lang),
-    });
-    return this;
+      return {} as this;
   }
 
   setAvailableLangs(langs: AvailableLangs) {
-    this.availableLangs = langs;
+      throw new Error("STUB");
   }
 
   /**
@@ -227,84 +176,11 @@ export class TranslocoService {
    * depending on how the available languages are set in your module.
    */
   getAvailableLangs() {
-    return this.availableLangs;
+      return {} as AvailableLangs;
   }
 
   load(path: string, options: LoadOptions = {}): Observable<Translation> {
-    // If the application has already been destroyed, return an empty observable.
-    // We use EMPTY instead of NEVER to ensure the observable completes.
-    // This is important for operators like switchMap, which rely on the inner observable completing
-    // before they can subscribe to the next one. NEVER would hang the chain indefinitely.
-    if (this.destroyed) {
-      return EMPTY;
-    }
-
-    const cached = this.cache.get(path);
-    if (cached) {
-      return cached;
-    }
-
-    let loadTranslation: Observable<
-      Translation | { translation: Translation; lang: string }[]
-    >;
-    const isScope = this._isLangScoped(path);
-    let scope: string;
-    if (isScope) {
-      scope = getScopeFromLang(path);
-    }
-
-    const loadersOptions = {
-      path,
-      mainLoader: this.loader,
-      inlineLoader: options.inlineLoader,
-      data: isScope ? { scope: scope! } : undefined,
-    };
-
-    if (this.useFallbackTranslation(path)) {
-      // if the path is scope the fallback should be `scope/fallbackLang`;
-      const fallback = isScope
-        ? `${scope!}/${this.firstFallbackLang}`
-        : this.firstFallbackLang;
-
-      const loaders = getFallbacksLoaders({
-        ...loadersOptions,
-        fallbackPath: fallback!,
-      });
-      loadTranslation = forkJoin(loaders);
-    } else {
-      const loader = resolveLoader(loadersOptions);
-      loadTranslation = from(loader);
-    }
-
-    const load$ = loadTranslation.pipe(
-      retry(this.config.failedRetries),
-      tap((translation) => {
-        if (Array.isArray(translation)) {
-          translation.forEach((t) => {
-            this.handleSuccess(t.lang, t.translation);
-            // Save the fallback in cache so we'll not create a redundant request
-            if (t.lang !== path) {
-              this.cache.set(t.lang, of({}));
-            }
-          });
-          return;
-        }
-        this.handleSuccess(path, translation);
-      }),
-      catchError((error) => {
-        if (typeof ngDevMode !== 'undefined' && ngDevMode) {
-          console.error(`Error while trying to load "${path}"`, error);
-        }
-
-        return this.handleFailure(path, options);
-      }),
-      shareReplay(1),
-      takeUntilDestroyed(this.destroyRef),
-    );
-
-    this.cache.set(path, load$);
-
-    return load$;
+      return {} as Observable<Translation>;
   }
 
   /**
@@ -323,35 +199,7 @@ export class TranslocoService {
     params: HashMap = {},
     lang = this.getActiveLang(),
   ): T {
-    if (!key) return key as any;
-
-    const { scope, resolveLang } = this.resolveLangAndScope(lang);
-
-    if (Array.isArray(key)) {
-      return key.map((k) =>
-        this.translate(
-          this.config.scopes.autoPrefixKeys && scope ? `${scope}.${k}` : k,
-          params,
-          resolveLang,
-        ),
-      ) as any;
-    }
-
-    key = this.config.scopes.autoPrefixKeys && scope ? `${scope}.${key}` : key;
-
-    const translation = this.getTranslation(resolveLang);
-    const value = translation[key];
-
-    if (!value) {
-      return this._handleMissingKey(key, value, params);
-    }
-
-    return this.parser.transpile({
-      value,
-      params,
-      translation,
-      key,
-    });
+      return {} as T;
   }
 
   /**
@@ -371,36 +219,7 @@ export class TranslocoService {
     lang?: string | TranslocoScope | TranslocoScope[],
     _isObject = false,
   ): Observable<T> {
-    let inlineLoader: InlineLoader | undefined;
-    const load = (lang: string, options?: LoadOptions) =>
-      this.load(lang, options).pipe(
-        map(() =>
-          _isObject
-            ? this.translateObject(key, params, lang)
-            : this.translate(key, params, lang),
-        ),
-      );
-    if (isNil(lang)) {
-      return this.langChanges$.pipe(switchMap((lang) => load(lang)));
-    }
-
-    lang = Array.isArray(lang) ? lang[lang.length - 1] : lang;
-    if (isScopeObject(lang)) {
-      // it's a scope object.
-      const providerScope = lang;
-      lang = providerScope.scope;
-      inlineLoader = resolveInlineLoader(providerScope, providerScope.scope);
-    }
-
-    lang = lang as string;
-    if (this.isLang(lang) || this.isScopeWithLang(lang)) {
-      return load(lang);
-    }
-    // it's a scope
-    const scope = lang;
-    return this.langChanges$.pipe(
-      switchMap((lang) => load(`${scope}/${lang}`, { inlineLoader })),
-    );
+      return {} as Observable<T>;
   }
 
   /**
@@ -412,7 +231,7 @@ export class TranslocoService {
    * todos => false
    */
   private isScopeWithLang(lang: string) {
-    return this.isLang(getLangFromScope(lang));
+      return false;
   }
 
   /**
@@ -440,35 +259,7 @@ export class TranslocoService {
     params: HashMap | null = {},
     lang = this.getActiveLang(),
   ): T | T[] {
-    if (isString(key) || Array.isArray(key)) {
-      const { resolveLang, scope } = this.resolveLangAndScope(lang);
-      if (Array.isArray(key)) {
-        return key.map((k) =>
-          this.translateObject(
-            this.config.scopes.autoPrefixKeys && scope ? `${scope}.${k}` : k,
-            params!,
-            resolveLang,
-          ),
-        ) as any;
-      }
-
-      const translation = this.getTranslation(resolveLang);
-      key =
-        this.config.scopes.autoPrefixKeys && scope ? `${scope}.${key}` : key;
-
-      const value = unflatten(this.getObjectByKey(translation, key));
-      /* If an empty object was returned we want to try and translate the key as a string and not an object */
-      return isEmpty(value)
-        ? this.translate(key, params!, lang)
-        : this.parser.transpile({ value, params: params!, translation, key });
-    }
-
-    const translations: T[] = [];
-    for (const [_key, _params] of this.getEntries(key)) {
-      translations.push(this.translateObject(_key, _params, lang));
-    }
-
-    return translations;
+      return [];
   }
 
   selectTranslateObject<T = any>(
@@ -496,24 +287,7 @@ export class TranslocoService {
     params?: HashMap | null,
     lang?: string,
   ): Observable<T> | Observable<T[]> {
-    if (isString(key) || Array.isArray(key)) {
-      return this.selectTranslate<T>(key, params!, lang, true);
-    }
-
-    const [[firstKey, firstParams], ...rest] = this.getEntries(key);
-
-    /* In order to avoid subscribing multiple times to the load language event by calling selectTranslateObject for each pair,
-     * we listen to when the first key has been translated (the language is loaded) and translate the rest synchronously */
-    return this.selectTranslateObject<T>(firstKey, firstParams, lang).pipe(
-      map((value) => {
-        const translations = [value];
-        for (const [_key, _params] of rest) {
-          translations.push(this.translateObject<T>(_key, _params, lang));
-        }
-
-        return translations;
-      }),
-    );
+      return {} as any;
   }
 
   /**
@@ -528,19 +302,7 @@ export class TranslocoService {
   getTranslation(): Map<string, Translation>;
   getTranslation(langOrScope: string): Translation;
   getTranslation(langOrScope?: string): Map<string, Translation> | Translation {
-    if (langOrScope) {
-      if (this.isLang(langOrScope)) {
-        return this.translations.get(langOrScope) || {};
-      } else {
-        // This is a scope, build the scope value from the translation object
-        const { scope, resolveLang } = this.resolveLangAndScope(langOrScope);
-        const translation = this.translations.get(resolveLang) || {};
-
-        return this.getObjectByKey(translation, scope);
-      }
-    }
-
-    return this.translations;
+      return {} as Translation | Map<string, Translation>;
   }
 
   /**
@@ -554,23 +316,7 @@ export class TranslocoService {
    * selectTranslation('admin-page/es').subscribe()
    */
   selectTranslation(lang?: string): Observable<Translation> {
-    let language$ = this.langChanges$;
-    if (lang) {
-      const scopeLangSpecified = getLangFromScope(lang) !== lang;
-      if (this.isLang(lang) || scopeLangSpecified) {
-        language$ = of(lang);
-      } else {
-        language$ = this.langChanges$.pipe(
-          map((currentLang) => `${lang}/${currentLang}`),
-        );
-      }
-    }
-
-    return language$.pipe(
-      switchMap((language) =>
-        this.load(language).pipe(map(() => this.getTranslation(language))),
-      ),
-    );
+      throw new Error("STUB");
   }
 
   /**
@@ -588,38 +334,7 @@ export class TranslocoService {
     lang = this.getActiveLang(),
     options: SetTranslationOptions = {},
   ) {
-    const defaults = { merge: true, emitChange: true };
-    const mergedOptions = { ...defaults, ...options };
-    const scope = getScopeFromLang(lang);
-
-    /**
-     * If this isn't a scope we use the whole translation as is
-     * otherwise we need to flat the scope and use it
-     */
-    let flattenScopeOrTranslation = translation;
-
-    // Merged the scoped language into the active language
-    if (scope) {
-      const key = this.getMappedScope(scope);
-      flattenScopeOrTranslation = flatten({ [key]: translation });
-    }
-
-    const currentLang = scope ? getLangFromScope(lang) : lang;
-
-    const mergedTranslation = {
-      ...(mergedOptions.merge && this.getTranslation(currentLang)),
-      ...flattenScopeOrTranslation,
-    };
-
-    const flattenTranslation = this.config.flatten!.aot
-      ? mergedTranslation
-      : flatten(mergedTranslation);
-    const withHook = this.interceptor.preSaveTranslation(
-      flattenTranslation,
-      currentLang,
-    );
-    this.translations.set(currentLang, withHook);
-    mergedOptions.emitChange && this.setActiveLang(this.getActiveLang());
+      // import-time preserved
   }
 
   /**
@@ -637,13 +352,7 @@ export class TranslocoService {
     value: string,
     options: Omit<SetTranslationOptions, 'merge'> = {},
   ) {
-    const lang = options.lang || this.getActiveLang();
-    const withHook = this.interceptor.preSaveTranslationKey(key, value, lang);
-    const newValue = {
-      [key]: withHook,
-    };
-
-    this.setTranslation(newValue, lang, { ...options, merge: true });
+      throw new Error("STUB");
   }
 
   /**
@@ -653,45 +362,21 @@ export class TranslocoService {
   setFallbackLangForMissingTranslation({
     fallbackLang,
   }: Pick<TranslocoConfig, 'fallbackLang'>) {
-    const lang = Array.isArray(fallbackLang) ? fallbackLang[0] : fallbackLang;
-    if (fallbackLang && this.useFallbackTranslation(lang)) {
-      this.firstFallbackLang = lang!;
-    }
+      throw new Error("STUB");
   }
 
   /**
    * @internal
    */
   _handleMissingKey(key: string, value: any, params?: HashMap) {
-    if (this.config.missingHandler!.allowEmpty && value === '') {
-      return '';
-    }
-
-    if (!this.isResolvedMissingOnce && this.useFallbackTranslation()) {
-      // We need to set it to true to prevent a loop
-      this.isResolvedMissingOnce = true;
-      const fallbackValue = this.translate(
-        key,
-        params,
-        this.firstFallbackLang!,
-      );
-      this.isResolvedMissingOnce = false;
-
-      return fallbackValue;
-    }
-
-    return this.missingHandler.handle(
-      key,
-      this.getMissingHandlerData(),
-      params,
-    );
+      return {} as any;
   }
 
   /**
    * @internal
    */
   _isLangScoped(lang: string) {
-    return this.getAvailableLangsIds().indexOf(lang) === -1;
+      return false;
   }
 
   /**
@@ -701,7 +386,7 @@ export class TranslocoService {
    * False if the given string is not an available language.
    */
   isLang(lang: string): boolean {
-    return this.getAvailableLangsIds().indexOf(lang) !== -1;
+      return false;
   }
 
   /**
@@ -714,61 +399,33 @@ export class TranslocoService {
     path: string,
     inlineLoader?: InlineLoader,
   ): Observable<Translation | Translation[]> {
-    const mainLang = getLangFromScope(path);
-
-    if (this._isLangScoped(path) && !this.isLoadedTranslation(mainLang)) {
-      return combineLatest([
-        this.load(mainLang),
-        this.load(path, { inlineLoader }),
-      ]);
-    }
-    return this.load(path, { inlineLoader });
+      return {} as Observable<Translation | Translation[]>;
   }
 
   /**
    * @internal
    */
   _completeScopeWithLang(langOrScope: string) {
-    if (
-      this._isLangScoped(langOrScope) &&
-      !this.isLang(getLangFromScope(langOrScope))
-    ) {
-      return `${langOrScope}/${this.getActiveLang()}`;
-    }
-    return langOrScope;
+      throw new Error("STUB");
   }
 
   /**
    * @internal
    */
   _setScopeAlias(scope: string, alias: string) {
-    if (!this.config.scopeMapping) {
-      this.config.scopeMapping = {};
-    }
-    this.config.scopeMapping[scope] = alias;
+      // import-time preserved
   }
 
   private isLoadedTranslation(lang: string) {
-    return size(this.getTranslation(lang));
+      return {} as any;
   }
 
   private getAvailableLangsIds(): string[] {
-    const first = this.getAvailableLangs()[0];
-
-    if (isString(first)) {
-      return this.getAvailableLangs() as string[];
-    }
-
-    return (this.getAvailableLangs() as LangDefinition[]).map((l) => l.id);
+      return [];
   }
 
   private getMissingHandlerData(): TranslocoMissingHandlerData {
-    return {
-      ...this.config,
-      activeLang: this.getActiveLang(),
-      availableLangs: this.availableLangs,
-      defaultLang: this.defaultLang,
-    };
+      return {} as TranslocoMissingHandlerData;
   }
 
   /**
@@ -776,78 +433,19 @@ export class TranslocoService {
    * This is unrelated to the fallback language (which changes the active language)
    */
   private useFallbackTranslation(lang?: string) {
-    return (
-      this.config.missingHandler!.useFallbackTranslation &&
-      lang !== this.firstFallbackLang
-    );
+      return false;
   }
 
   private handleSuccess(lang: string, translation: Translation) {
-    this.setTranslation(translation, lang, { emitChange: false });
-    this.events.next({
-      wasFailure: !!this.failedLangs.size,
-      type: 'translationLoadSuccess',
-      payload: getEventPayload(lang),
-    });
-    this.failedLangs.forEach((l) => this.cache.delete(l));
-    this.failedLangs.clear();
+      // import-time preserved
   }
 
   private handleFailure(lang: string, loadOptions: LoadOptions) {
-    // When starting to load a first choice language, initialize
-    // the failed counter and resolve the fallback langs.
-    if (isNil(loadOptions.failedCounter)) {
-      loadOptions.failedCounter = 0;
-
-      if (!loadOptions.fallbackLangs) {
-        loadOptions.fallbackLangs = this.fallbackStrategy.getNextLangs(lang);
-      }
-    }
-
-    const splitted = lang.split('/');
-    const fallbacks = loadOptions.fallbackLangs;
-    const nextLang = fallbacks![loadOptions.failedCounter!];
-    this.failedLangs.add(lang);
-
-    // This handles the case where a loaded fallback language is requested again
-    if (this.cache.has(nextLang)) {
-      this.handleSuccess(nextLang, this.getTranslation(nextLang));
-      return EMPTY;
-    }
-
-    const isFallbackLang = nextLang === splitted[splitted.length - 1];
-
-    if (!nextLang || isFallbackLang) {
-      throw new TranslationLoadError(
-        lang,
-        fallbacks ?? [],
-        splitted.length > 1,
-      );
-    }
-
-    let resolveLang = nextLang;
-    // if it's scoped lang
-    if (splitted.length > 1) {
-      // We need to resolve it to:
-      // todos/langNotExists => todos/nextLang
-      splitted[splitted.length - 1] = nextLang;
-      resolveLang = splitted.join('/');
-    }
-
-    loadOptions.failedCounter!++;
-    this.events.next({
-      type: 'translationLoadFailure',
-      payload: getEventPayload(lang),
-    });
-
-    return this.load(resolveLang, loadOptions);
+      return {} as any;
   }
 
   private getMappedScope(scope: string): string {
-    const { scopeMapping = {}, scopes = { keepCasing: false } } = this.config;
-    return (
-      scopeMapping[scope] || (scopes.keepCasing ? scope : toCamelCase(scope))
-    );
+      return "";
   }
 
   /**
@@ -856,37 +454,14 @@ export class TranslocoService {
    * todos => in this case we should set the active lang as lang
    */
   private resolveLangAndScope(lang: string) {
-    let resolveLang = lang;
-    let scope;
-
-    if (this._isLangScoped(lang)) {
-      // en for example
-      const langFromScope = getLangFromScope(lang);
-      // en is lang
-      const hasLang = this.isLang(langFromScope);
-      // take en
-      resolveLang = hasLang ? langFromScope : this.getActiveLang();
-      // find the scope
-      scope = this.getMappedScope(hasLang ? getScopeFromLang(lang) : lang);
-    }
-
-    return { scope, resolveLang };
+      return {} as { scope: any; resolveLang: string; };
   }
 
   private getObjectByKey(translation: Translation, key?: string) {
-    const result: Translation = {};
-    const prefix = `${key}.`;
-
-    for (const currentKey in translation) {
-      if (currentKey.startsWith(prefix)) {
-        result[currentKey.replace(prefix, '')] = translation[currentKey];
-      }
-    }
-
-    return result;
+      return {} as Translation;
   }
 
   private getEntries(key: HashMap | Map<string, HashMap>) {
-    return key instanceof Map ? key.entries() : Object.entries(key);
+      return [];
   }
 }

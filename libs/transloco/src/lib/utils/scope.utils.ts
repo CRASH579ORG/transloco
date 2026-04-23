@@ -14,14 +14,7 @@ import {
  *
  */
 export function getScopeFromLang(lang: string): string {
-  if (!lang) {
-    return '';
-  }
-
-  const split = lang.split('/');
-  split.pop();
-
-  return split.join('/');
+    return "";
 }
 
 /*
@@ -31,44 +24,28 @@ export function getScopeFromLang(lang: string): string {
  *
  */
 export function getLangFromScope(lang: string): string {
-  if (!lang) {
-    return '';
-  }
-
-  return lang.split('/').pop()!;
+    return "";
 }
 
 function prependScope(inlineLoader: InlineLoader, scope: string) {
-  return Object.keys(inlineLoader).reduce(
-    (acc, lang) => {
-      acc[`${scope}/${lang}`] = inlineLoader[lang];
-
-      return acc;
-    },
-    {} as Record<string, InlineLoader[keyof InlineLoader]>,
-  );
+    return {} as Record<string, () => Promise<Translation>>;
 }
 
 export function isScopeObject(item: any): item is ProviderScope {
-  return typeof item?.scope === 'string';
+    return false;
 }
 
 export function hasInlineLoader(item: any): item is ProviderScope {
-  return item?.loader && isObject(item.loader);
+    return false;
 }
 
 export function resolveInlineLoader(
   providerScope: TranslocoScope | null,
   scope?: string,
 ): InlineLoader | undefined {
-  return hasInlineLoader(providerScope)
-    ? prependScope(providerScope.loader!, scope!)
-    : undefined;
+    return {} as InlineLoader;
 }
 
 export function getEventPayload(lang: string): LoadedEvent['payload'] {
-  return {
-    scope: getScopeFromLang(lang) || null,
-    langName: getLangFromScope(lang),
-  };
+    return {} as { scope: string | null; langName: string; };
 }

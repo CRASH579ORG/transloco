@@ -66,20 +66,5 @@ export type PartialTranslocoConfig = DeepPartial<TranslocoConfig>;
 export function translocoConfig(
   config: PartialTranslocoConfig = {},
 ): TranslocoConfig {
-  return {
-    ...defaultConfig,
-    ...config,
-    missingHandler: {
-      ...defaultConfig.missingHandler,
-      ...config.missingHandler,
-    },
-    flatten: {
-      ...defaultConfig.flatten,
-      ...config.flatten,
-    },
-    scopes: {
-      ...defaultConfig.scopes,
-      ...config.scopes,
-    },
-  };
+    return {} as TranslocoConfig;
 }

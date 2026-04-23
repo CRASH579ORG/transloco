@@ -14,27 +14,6 @@ export class ScopeResolver {
 
   // inline => provider
   resolve(params: ScopeResolverParams): string | undefined {
-    const { inline, provider } = params;
-    if (inline) {
-      return inline;
-    }
-
-    if (provider) {
-      if (isScopeObject(provider)) {
-        const {
-          scope,
-          alias = this.service.config.scopes.keepCasing
-            ? scope
-            : toCamelCase(scope),
-        } = provider as ProviderScope;
-        this.service._setScopeAlias(scope, alias);
-
-        return scope;
-      }
-
-      return provider as string;
-    }
-
-    return undefined;
+      return "";
   }
 }

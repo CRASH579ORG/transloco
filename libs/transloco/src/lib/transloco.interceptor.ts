@@ -18,10 +18,10 @@ export interface TranslocoInterceptor {
 @Injectable()
 export class DefaultInterceptor implements TranslocoInterceptor {
   preSaveTranslation(translation: Translation): Translation {
-    return translation;
+      return {} as Translation;
   }
 
   preSaveTranslationKey(_: string, value: string): string {
-    return value;
+      throw new Error("STUB");
   }
 }

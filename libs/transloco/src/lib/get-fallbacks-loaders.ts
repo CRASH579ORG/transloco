@@ -19,16 +19,5 @@ export function getFallbacksLoaders({
   fallbackPath,
   inlineLoader,
 }: Options) {
-  const paths = fallbackPath ? [path, fallbackPath] : [path];
-
-  return paths.map((path) => {
-    const loader = resolveLoader({ path, mainLoader, inlineLoader, data });
-
-    return from(loader).pipe(
-      map((translation) => ({
-        translation,
-        lang: path,
-      })),
-    );
-  });
+    return [];
 }

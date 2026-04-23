@@ -11,18 +11,5 @@ interface Options {
 }
 
 export function resolveLoader(options: Options) {
-  const { path, inlineLoader, mainLoader, data } = options;
-
-  if (inlineLoader) {
-    const pathLoader = inlineLoader[path];
-    if (isFunction(pathLoader) === false) {
-      throw `You're using an inline loader but didn't provide a loader for ${path}`;
-    }
-
-    return inlineLoader[path]().then((res) =>
-      res.default ? res.default : res,
-    );
-  }
-
-  return mainLoader.getTranslation(path, data);
+    return {} as any;
 }
